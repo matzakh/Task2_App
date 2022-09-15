@@ -1,4 +1,5 @@
 from db import db
+from common.utils import populate_db
 
 from flask import Flask
 from flask_restful import Api
@@ -6,7 +7,7 @@ from resources.sport import Sport
 
 
 def init_app():
-    app = Flask(__name__, instance_relative_config=False)
+    app = Flask(__name__)
     api = Api(app)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -14,7 +15,10 @@ def init_app():
     with app.app_context():
 
         db.init_app(app)
+        #db.drop_all()
         db.create_all()
+        #populate_db(db)
+        print(db.engine.table_names())
 
         @app.route('/')
         def home():
@@ -29,3 +33,4 @@ app = init_app()
 
 if __name__ == '__main__':
     app.run()
+    db.drop_all()

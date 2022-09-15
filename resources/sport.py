@@ -1,5 +1,6 @@
 from flask_restful import fields, marshal_with, reqparse, Resource
 from models.sport_model import SportModel
+from common.utils import abort_if_not_exist
 
 
 class Sport(Resource):
@@ -25,12 +26,18 @@ class Sport(Resource):
         'active': fields.Boolean
     }
 
-    @marshal_with(sport_fields)
-    def get(self, **kwargs):
-        return SportModel(name=kwargs.name, slug=kwargs.slug, active=kwargs.active)
+    def get(self, slug):
+        result = SportModel.find_by_slug(slug)
+        if result is None:
+            abort_if_not_exist(slug)
+        return result.json()
 
     @marshal_with(sport_fields)
-    def post(self):
+    def post(self, **kwargs):
+        pass
+
+    @marshal_with(sport_fields)
+    def put(self, **kwargs):
         pass
 
     def delete(self):
