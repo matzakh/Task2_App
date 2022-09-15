@@ -42,3 +42,9 @@ class Sport(Resource):
 
     def delete(self):
         pass
+
+
+class SportList(Resource):
+
+    def get(self):
+        pass
