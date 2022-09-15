@@ -2,8 +2,8 @@ from flask_restful import abort
 from models.sport_model import SportModel
 
 
-def abort_if_not_exist(item_name):
-    abort(404, message="{} doesn't exist".format(item_name))
+def abort_if_not_exist(item):
+    abort(404, message="{} doesn't exist".format(str(item)))
 
 
 def populate_db(sqldb):

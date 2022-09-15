@@ -1,4 +1,4 @@
-from flask_restful import fields, marshal_with, reqparse, Resource
+from flask_restful import request, Resource, abort
 from models.sport_model import SportModel
 from common.utils import abort_if_not_exist
 from marshmallow import Schema, fields
@@ -8,6 +8,9 @@ class SportSchema(Schema):
     name = fields.Str(required=False)
     slug = fields.Str(required=False)
     active = fields.Boolean(required=False)
+
+
+schema = SportSchema()
 
 
 class Sport(Resource):
@@ -53,5 +56,14 @@ class Sport(Resource):
 
 class SportList(Resource):
 
-    def get(self, **kwargs):
-        pass
+    def get(self):
+        error = schema.validate(request.args)
+        if error:
+            abort(400, str(error))
+
+        result = SportModel.find_by_params(**request.args)
+
+        if len(result) < 1:
+            abort_if_not_exist(request.args)
+
+        return {'sports': [i.json().json for i in result]}, 200

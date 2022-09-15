@@ -31,9 +31,17 @@ class SportModel(db.Model):
         filter_str = ''
 
         for key, value in kwargs.items():
-            filter_str += str(key) + '=' + str(value) + ' and '
+            val = value[0]
+            if key == 'name' or key == 'slug':
+                filter_str += str(key) + ' REGEXP "' + str(val) + '" and '
+            elif val.lower() == 'true':
+                filter_str += str(key) + ' and '
+            elif val.lower() == 'false':
+                filter_str += 'not ' + str(key) + ' and '
+            else:
+                filter_str += str(key) + '=' + str(val) + ' and '
 
-        filter_str -= ' and '
+        filter_str = filter_str[:-5]
 
         result = db.session.execute('SELECT * FROM sport_model WHERE ' + filter_str)
         Record = namedtuple('Record', result.keys())
