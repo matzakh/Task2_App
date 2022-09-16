@@ -42,7 +42,6 @@ class Sport(Resource):
             abort_if_not_exist(slug)
         return result.json()
 
-    # @marshal_with(sport_fields)
     def post(self, slug):
         try:
             schema.load(request.form)
@@ -57,9 +56,18 @@ class Sport(Resource):
         model.save_to_db()
         return model.json()
 
-    # @marshal_with(sport_fields)
-    def put(self, **kwargs):
-        pass
+    def put(self, slug):
+        try:
+            schema.load(request.form)
+        except:
+            abort(400, message="Invalid fields")
+        model = SportModel.find_by_slug(slug)
+        if model is None:
+            abort_if_not_exist(slug)
+
+        model.update_in_db()
+
+        return model.json()
 
     def delete(self):
         pass
