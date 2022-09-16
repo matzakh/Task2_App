@@ -31,6 +31,12 @@ class SportModel(db.Model):
                                                                                                             self.active))
         db.session.commit()
 
+    def delete_from_db(self):
+        db.session.execute('DELETE FROM sport_model WHERE ("{0}", "{1}", {2})'.format(self.name,
+                                                                                      self.slug,
+                                                                                      self.active))
+        db.session.commit()
+
     @classmethod
     def find_by_params(cls, **kwargs):
         matched_models = []
