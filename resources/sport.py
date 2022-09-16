@@ -44,18 +44,16 @@ class Sport(Resource):
 
     # @marshal_with(sport_fields)
     def post(self, slug):
-        print(request.form.to_dict())
         try:
             schema.load(request.form)
         except:
             abort(400, message="Invalid fields")
-
-        print(request.form['name'],request.form['slug'],request.form['active'])
+        if len(SportModel.find_by_params(**request.form)) > 0:
+            abort(400, message="This sport already exists")
 
         model = SportModel(name=request.form['name'],
                            slug=request.form['slug'],
                            active=request.form['active'])
-        print(model)
         model.save_to_db()
         return model.json()
 

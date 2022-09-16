@@ -37,6 +37,9 @@ class SportModel(db.Model):
                                                                                       self.active))
         db.session.commit()
 
+    def update_in_db(self):
+        pass
+
     @classmethod
     def find_by_params(cls, **kwargs):
         matched_models = []
