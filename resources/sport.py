@@ -43,8 +43,21 @@ class Sport(Resource):
         return result.json()
 
     # @marshal_with(sport_fields)
-    def post(self, **kwargs):
-        pass
+    def post(self, slug):
+        print(request.form.to_dict())
+        try:
+            schema.load(request.form)
+        except:
+            abort(400, message="Invalid fields")
+
+        print(request.form['name'],request.form['slug'],request.form['active'])
+
+        model = SportModel(name=request.form['name'],
+                           slug=request.form['slug'],
+                           active=request.form['active'])
+        print(model)
+        model.save_to_db()
+        return model.json()
 
     # @marshal_with(sport_fields)
     def put(self, **kwargs):
@@ -59,7 +72,7 @@ class SportList(Resource):
     def get(self):
         error = schema.validate(request.args)
         if error:
-            abort(400, str(error))
+            abort(400, message=str(error))
 
         result = SportModel.find_by_params(**request.args)
 

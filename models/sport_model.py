@@ -25,6 +25,12 @@ class SportModel(db.Model):
             'active': self.active
         })
 
+    def save_to_db(self):
+        db.session.execute('INSERT INTO sport_model (name, slug, active) VALUES ("{0}", "{1}", {2})'.format(self.name,
+                                                                                                            self.slug,
+                                                                                                            self.active))
+        db.session.commit()
+
     @classmethod
     def find_by_params(cls, **kwargs):
         matched_models = []
