@@ -37,8 +37,12 @@ class SportModel(db.Model):
                                                                                       self.active))
         db.session.commit()
 
-    def update_in_db(self):
-        pass
+    def update_in_db(self, slug, **kwargs):
+        print(kwargs)
+        self.name = kwargs['name'][0]
+        self.active = kwargs['active'][0]
+        db.session.execute('UPDATE sport_model SET name = "{0}", active = {1} WHERE slug = "{2}"'.format(self.name,self.active,slug))
+        db.session.commit()
 
     @classmethod
     def find_by_params(cls, **kwargs):

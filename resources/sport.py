@@ -65,7 +65,7 @@ class Sport(Resource):
         if model is None:
             abort_if_not_exist(slug)
 
-        model.update_in_db()
+        model.update_in_db(slug, **request.form)
 
         return model.json()
 
