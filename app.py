@@ -9,15 +9,15 @@ from resources.sport import Sport, SportList
 def init_app():
     app = Flask(__name__)
     api = Api(app)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test1.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     with app.app_context():
 
         db.init_app(app)
-        #db.drop_all()
+        db.drop_all()
         db.create_all()
-        #populate_db(db)
+        populate_db(db)
         print(db.engine.table_names())
 
         @app.route('/')

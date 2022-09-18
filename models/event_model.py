@@ -17,13 +17,13 @@ class EventStatus(Enum):
 
 
 class EventModel(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'events'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
     slug = db.Column(db.String(50), nullable=False)
     active = db.Column(db.Boolean)
     type = db.Column(db.Integer)
-    sport = db.Column(db.Integer, db.ForeignKey('sport_model.id'))
+    sport = db.Column(db.Integer, db.ForeignKey('sports.id'))
     scheduled_start = db.Column(db.DATETIME)
     actual_start = db.Column(db.DATETIME)
 

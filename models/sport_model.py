@@ -4,8 +4,8 @@ from collections import namedtuple
 
 
 class SportModel(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'sports'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
     slug = db.Column(db.String(50), nullable=False)
     active = db.Column(db.Boolean)
@@ -27,13 +27,13 @@ class SportModel(db.Model):
         })
 
     def save_to_db(self):
-        db.session.execute('INSERT INTO sport_model (name, slug, active) VALUES ("{0}", "{1}", {2})'.format(self.name,
+        db.session.execute('INSERT INTO sports (name, slug, active) VALUES ("{0}", "{1}", {2})'.format(self.name,
                                                                                                             self.slug,
                                                                                                             self.active))
         db.session.commit()
 
     def delete_from_db(self):
-        db.session.execute('DELETE FROM sport_model WHERE ("{0}", "{1}", {2})'.format(self.name,
+        db.session.execute('DELETE FROM sports WHERE ("{0}", "{1}", {2})'.format(self.name,
                                                                                       self.slug,
                                                                                       self.active))
         db.session.commit()
@@ -42,7 +42,7 @@ class SportModel(db.Model):
         print(kwargs)
         self.name = kwargs['name'][0]
         self.active = kwargs['active'][0]
-        db.session.execute('UPDATE sport_model SET name = "{0}", active = {1} WHERE slug = "{2}"'.format(self.name,
+        db.session.execute('UPDATE sports SET name = "{0}", active = {1} WHERE slug = "{2}"'.format(self.name,
                                                                                                          self.active,
                                                                                                          slug))
         db.session.commit()
@@ -65,7 +65,7 @@ class SportModel(db.Model):
 
         filter_str = filter_str[:-5]
 
-        result = db.session.execute('SELECT * FROM sport_model WHERE ' + filter_str)
+        result = db.session.execute('SELECT * FROM sports WHERE ' + filter_str)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
 
@@ -78,7 +78,7 @@ class SportModel(db.Model):
     def find_by_field(cls, field_value, field_name='slug'):
         if isinstance(field_value, str):
             field_value = '"' + field_value + '"'
-        result = db.session.execute('SELECT * FROM sport_model WHERE {0} = {1} LIMIT 1'.format(field_name, field_value))
+        result = db.session.execute('SELECT * FROM sports WHERE {0} = {1} LIMIT 1'.format(field_name, field_value))
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
         for r in records:
