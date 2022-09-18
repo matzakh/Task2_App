@@ -1,10 +1,10 @@
 from db import db
 from flask import jsonify
 from collections import namedtuple
-from enum import Enum
+from enum import IntEnum
 
 
-class EventType(Enum):
+class EventType(IntEnum):
     PREPAY = 1
     INPLAY = 2
 
@@ -18,7 +18,7 @@ class EventType(Enum):
             return None
 
 
-class EventStatus(Enum):
+class EventStatus(IntEnum):
     PENDING = 1
     STARTED = 2
     ENDED = 3
@@ -47,8 +47,8 @@ class EventModel(db.Model):
     type = db.Column(db.Integer, nullable=False)
     sport = db.Column(db.Integer, db.ForeignKey('sports.id'))
     status = db.Column(db.Integer, nullable=False)
-    scheduled_start = db.Column(db.DATETIME)
-    actual_start = db.Column(db.DATETIME)
+    scheduled_start = db.Column(db.DATETIME, nullable=True)
+    actual_start = db.Column(db.DATETIME, nullable=True)
 
     def __repr__(self):
         return "<Event %r>" % self.name
