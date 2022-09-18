@@ -21,7 +21,7 @@ def populate_db(sqldb):
     football_event1 = EventModel(name='Jupiter vs Saturn',
                                  slug='jupiter_v_saturn',
                                  active=True,
-                                 type=int(EventType.INPLAY),
+                                 type=EventType.INPLAY,
                                  sport=football.id,
                                  status=EventStatus.PENDING,
                                  scheduled_start=dt.utcnow())
