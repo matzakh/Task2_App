@@ -15,6 +15,10 @@ class SportModel(db.Model):
         self.slug = slug
         self.active = active
 
+    def _assign_id(self, id):
+        self.id = id
+        return self
+
     def __repr__(self):
         return "<Sport %r>" % self.name
 
@@ -28,14 +32,14 @@ class SportModel(db.Model):
 
     def save_to_db(self):
         db.session.execute('INSERT INTO sports (name, slug, active) VALUES ("{0}", "{1}", {2})'.format(self.name,
-                                                                                                            self.slug,
-                                                                                                            self.active))
+                                                                                                       self.slug,
+                                                                                                       self.active))
         db.session.commit()
 
     def delete_from_db(self):
         db.session.execute('DELETE FROM sports WHERE ("{0}", "{1}", {2})'.format(self.name,
-                                                                                      self.slug,
-                                                                                      self.active))
+                                                                                 self.slug,
+                                                                                 self.active))
         db.session.commit()
 
     def update_in_db(self, slug, **kwargs):
@@ -43,8 +47,8 @@ class SportModel(db.Model):
         self.name = kwargs['name'][0]
         self.active = kwargs['active'][0]
         db.session.execute('UPDATE sports SET name = "{0}", active = {1} WHERE slug = "{2}"'.format(self.name,
-                                                                                                         self.active,
-                                                                                                         slug))
+                                                                                                    self.active,
+                                                                                                    slug))
         db.session.commit()
 
     @classmethod
@@ -70,7 +74,7 @@ class SportModel(db.Model):
         records = [Record(*r) for r in result.fetchall()]
 
         for r in records:
-            matched_models.append(SportModel(name=r.name, slug=r.slug, active=r.active))
+            matched_models.append(SportModel(name=r.name, slug=r.slug, active=r.active)._assign_id(r.id))
 
         return matched_models
 
@@ -82,5 +86,5 @@ class SportModel(db.Model):
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
         for r in records:
-            return SportModel(name=r.name, slug=r.slug, active=r.active)
+            return SportModel(name=r.name, slug=r.slug, active=r.active)._assign_id(r.id)
 
