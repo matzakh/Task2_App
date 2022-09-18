@@ -8,12 +8,34 @@ class EventType(Enum):
     PREPAY = 1
     INPLAY = 2
 
+    @classmethod
+    def str_to_int(cls, str_val):
+        if str_val.lower() == 'prepay':
+            return cls.PREPAY
+        elif str_val.lower() == 'inplay':
+            return cls.INPLAY
+        else:
+            return None
+
 
 class EventStatus(Enum):
     PENDING = 1
     STARTED = 2
     ENDED = 3
     CANCELLED = 4
+
+    @classmethod
+    def str_to_int(cls, str_val):
+        if str_val.lower() == 'pending':
+            return cls.PENDING
+        elif str_val.lower() == 'started':
+            return cls.STARTED
+        elif str_val.lower() == 'ended':
+            return cls.ENDED
+        elif str_val.lower() == 'cancelled':
+            return cls.CANCELLED
+        else:
+            return None
 
 
 class EventModel(db.Model):
@@ -29,6 +51,10 @@ class EventModel(db.Model):
 
     def __repr__(self):
         return "<Event %r>" % self.name
+
+    def _assign_id(self, id):
+        self.id = id
+        return self
 
     def json(self):
         return jsonify({
