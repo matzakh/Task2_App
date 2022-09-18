@@ -75,14 +75,12 @@ class SportModel(db.Model):
         return matched_models
 
     @classmethod
-    def find_by_slug(cls, slug):
-        result = db.session.execute('SELECT * FROM sport_model WHERE slug = :val', {'val': slug})
+    def find_by_field(cls, field_value, field_name='slug'):
+        if isinstance(field_value, str):
+            field_value = '"' + field_value + '"'
+        result = db.session.execute('SELECT * FROM sport_model WHERE {0} = {1}'.format(field_name, field_value))
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
         for r in records:
             return SportModel(name=r.name, slug=r.slug, active=r.active)
-
-    @classmethod
-    def find_by_id(cls, q_id):
-        pass
 

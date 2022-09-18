@@ -37,7 +37,7 @@ class Sport(Resource):
     } """
 
     def get(self, slug):
-        result = SportModel.find_by_slug(slug)
+        result = SportModel.find_by_field(slug)
         if result is None:
             abort_if_not_exist(slug)
         return result.json()
@@ -61,7 +61,7 @@ class Sport(Resource):
             schema.load(request.form)
         except:
             abort(400, message="Invalid fields")
-        model = SportModel.find_by_slug(slug)
+        model = SportModel.find_by_field(slug)
         if model is None:
             abort_if_not_exist(slug)
 

@@ -41,3 +41,4 @@ class EventModel(db.Model):
             'scheduled_start': self.scheduled_start,
             'actual_start': self.actual_start
         })
+
