@@ -41,7 +41,9 @@ class SportModel(db.Model):
         print(kwargs)
         self.name = kwargs['name'][0]
         self.active = kwargs['active'][0]
-        db.session.execute('UPDATE sport_model SET name = "{0}", active = {1} WHERE slug = "{2}"'.format(self.name,self.active,slug))
+        db.session.execute('UPDATE sport_model SET name = "{0}", active = {1} WHERE slug = "{2}"'.format(self.name,
+                                                                                                         self.active,
+                                                                                                         slug))
         db.session.commit()
 
     @classmethod
