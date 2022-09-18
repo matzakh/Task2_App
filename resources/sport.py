@@ -14,27 +14,6 @@ schema = SportSchema()
 
 
 class Sport(Resource):
-    """ post_parser = reqparse.RequestParser()
-    post_parser.add_argument(
-        'name', dest='name',
-        location='form', required=False
-    )
-    post_parser.add_argument(
-        'slug', dest='slug',
-        location='form',
-        required=False
-    )
-    post_parser.add_argument(
-        'active', dest='active',
-        type=bool, location='form',
-        default=False
-    )
-
-    sport_fields = {
-        'name': fields.String,
-        'slug': fields.String,
-        'active': fields.Boolean
-    } """
 
     def get(self, slug):
         result = SportModel.find_by_field(slug)
