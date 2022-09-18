@@ -44,8 +44,9 @@ class EventModel(db.Model):
     name = db.Column(db.String(50), nullable=False)
     slug = db.Column(db.String(50), nullable=False)
     active = db.Column(db.Boolean)
-    type = db.Column(db.Integer)
+    type = db.Column(db.Integer, nullable=False)
     sport = db.Column(db.Integer, db.ForeignKey('sports.id'))
+    status = db.Column(db.Integer, nullable=False)
     scheduled_start = db.Column(db.DATETIME)
     actual_start = db.Column(db.DATETIME)
 
@@ -64,7 +65,28 @@ class EventModel(db.Model):
             'active': self.active,
             'type': self.type,
             'sport': self.sport,
+            'status': self.status,
             'scheduled_start': self.scheduled_start,
             'actual_start': self.actual_start
         })
 
+    @classmethod
+    def find_by_field(cls, field_value, field_name='slug'):
+        if isinstance(field_value, str):
+            field_value = '"' + field_value + '"'
+        if field_name == 'type':
+            field_value = EventType.str_to_int(field_value)
+        elif field_name == 'status':
+            field_value = EventStatus.str_to_int(field_value)
+        result = db.session.execute('SELECT * FROM events WHERE {0} = {1} LIMIT 1'.format(field_name, field_value))
+        Record = namedtuple('Record', result.keys())
+        records = [Record(*r) for r in result.fetchall()]
+        for r in records:
+            return EventModel(name=r.name,
+                              slug=r.slug,
+                              active=r.active,
+                              type=r.type,
+                              sport=r.sport,
+                              status=r.status,
+                              scheduled_start=r.scheduled_start,
+                              actual_start=r.actual_start)._assign_id(r.id)
