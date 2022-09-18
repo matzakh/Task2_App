@@ -32,6 +32,7 @@ class EventModel(db.Model):
 
     def json(self):
         return jsonify({
+            'id': self.id,
             'name': self.name,
             'slug': self.slug,
             'active': self.active,
