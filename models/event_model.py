@@ -70,6 +70,18 @@ class EventModel(db.Model):
             'actual_start': self.actual_start
         })
 
+    def save_to_db(self):
+        db.session.execute("""INSERT INTO events (name, slug, active, type, sport, status, scheduled_start, actual_start) 
+                              VALUES ('{0}', '{1}', {2}, {3}, {4}, {5}, {6}, {7})""".format(self.name,
+                                                                                            self.slug,
+                                                                                            self.active,
+                                                                                            self.type,
+                                                                                            self.sport,
+                                                                                            self.status,
+                                                                                            self.scheduled_start,
+                                                                                            self.actual_start))
+        db.session.commit()
+
     @classmethod
     def find_by_params(cls, **kwargs):
         matched_models = []
