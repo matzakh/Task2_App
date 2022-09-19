@@ -63,6 +63,6 @@ class SportList(Resource):
         result = SportModel.find_by_params(**request.args)
 
         if len(result) < 1:
-            abort_if_not_exist(request.args)
+            abort_if_not_exist('This query result')
 
         return {'sports': [i.json().json for i in result]}, 200

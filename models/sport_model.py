@@ -1,7 +1,7 @@
 from db import db
 from flask import jsonify
 from collections import namedtuple
-from common.utils import parse_clauses_for_query
+from common.utils import parse_clauses_for_query, parse_key_val_with_operator
 
 
 class SportModel(db.Model):
@@ -56,31 +56,48 @@ class SportModel(db.Model):
     @classmethod
     def find_by_params(cls, **kwargs):
         matched_models = []
-        filter_str = ''
+        sport_filter_arr = []
+        event_filter_arr = []
+        having_str = ''
+        sport_filter_str = ''
+        event_filter_str = ''
 
         for key, value in kwargs.items():
-            key = str(key)
+            key = str(key).lower()
             val = str(value[0])
-            if 'event' in key.lower():
-                key = 'e.' + key.lower().split('event_')[1]
+            operator = '='
+            if val == '':
+                key, operator, val = parse_key_val_with_operator(key)
+            if 'event' in key:
+                key = 'e.' + key.split('event_')[1]
+                if 'count' in key:
+                    having_str += 'HAVING ' + parse_clauses_for_query('count(ev.id)', operator, val)
+                else:
+                    event_filter_arr.append(parse_clauses_for_query(key, operator, val))
             else:
-                key = 's.' + key.lower()
-            if key == 's.name' or key == 's.slug':
-                filter_str += parse_clauses_for_query(key, 'REGEXP', val, is_string=True)
-            else:
-                filter_str += parse_clauses_for_query(key, '=', val)
-            filter_str += ' and '
+                key = 's.' + key
+                if key == 's.name' or key == 's.slug':
+                    sport_filter_arr.append(parse_clauses_for_query(key, 'REGEXP', val, is_string=True))
+                else:
+                    sport_filter_arr.append(parse_clauses_for_query(key, operator, val))
 
-        filter_str = filter_str[:-5]
+        if len(sport_filter_arr) > 0:
+            sport_filter_str = ' WHERE ' + ' AND '.join(sport_filter_arr) + ' '
+        if len(event_filter_arr) > 0:
+            event_filter_str = ' WHERE ' + ' AND '.join(event_filter_arr) + ' '
 
         query = """SELECT DISTINCT
-                                              s.id as id,
-                                              s.name as name,
-                                              s.slug as slug,
-                                              s.active as active
-                                       FROM sports s 
-                                       LEFT JOIN events e on s.id=e.sport 
-                                       WHERE """ + filter_str
+                            s.id as id,
+                            s.name as name,
+                            s.slug as slug,
+                            s.active as active,
+                            count(ev.id) as cnt
+                   FROM sports s 
+                   LEFT JOIN (
+                        SELECT e.id, e.sport, e.name, e.slug, e.active, e.scheduled_start, e.actual_start, e.status, e.type
+                        FROM events e""" + event_filter_str + \
+                   """) ev 
+                   ON s.id=ev.sport""" + sport_filter_str + """ GROUP BY 1,2,3,4 """ + having_str
 
         print(query)
         result = db.session.execute(query)
@@ -105,7 +122,7 @@ class SportModel(db.Model):
     @classmethod
     def active_events_check(cls, sport_id):
         sport = SportModel.find_by_field(sport_id, field_name='id')
-        sport_with_active_events = SportModel.find_by_params(**{'id': [sport.id], 'event_active': ['true']})
+        sport_with_active_events = SportModel.find_by_params(**{'id': [sport.id], 'event_active': [1]})
         if not sport.active and len(sport_with_active_events) > 0:
             sport.update_in_db(sport.slug, **{'name': [sport.name], 'active': [1]})
         elif sport.active and len(sport_with_active_events) == 0:

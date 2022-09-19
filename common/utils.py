@@ -14,3 +14,16 @@ def parse_clauses_for_query(key, operator, value, is_string=False):
     else:
         return '(' + key + ' ' + operator + ' ' + value + ')'
 
+
+def parse_key_val_with_operator(keystr):
+    if '>=' in keystr:
+        return keystr.split('>=')[0], '>=', keystr.split('>=')[1]
+    elif '<=' in keystr:
+        return keystr.split('<=')[0], '<=', keystr.split('<=')[1]
+    elif '>' in keystr:
+        return keystr.split('>')[0], '>', keystr.split('>')[1]
+    elif '<' in keystr:
+        return keystr.split('<')[0], '<', keystr.split('<')[1]
+    else:
+        return None
+
