@@ -99,6 +99,36 @@ class EventModel(db.Model):
                                                                                             self.actual_start))
         db.session.commit()
 
+    def update_in_db(self, slug, **kwargs):
+        self.name = kwargs['name'][0]
+        self.active = kwargs['active'][0]
+        type = kwargs['type'][0]
+        if isinstance(kwargs['type'][0], str):
+            type = EventType.str_to_int(kwargs['type'][0])
+        self.type = type
+        status = kwargs['status'][0]
+        if isinstance(kwargs['status'][0], str):
+            status = EventStatus.str_to_int(kwargs['status'][0])
+        self.status = status
+        self.scheduled_start = kwargs['scheduled_start'][0]
+        self.actual_start = kwargs['actual_start'][0]
+        db.session.execute("""UPDATE events 
+                              SET name = '{0}', 
+                                  active = {1},
+                                  type = {2},
+                                  status = {3},
+                                  scheduled_start = {4},
+                                  actual_start = {5} 
+                              WHERE slug = '{6}'""".format(self.name,
+                                                           self.active,
+                                                           self.type,
+                                                           self.status,
+                                                           self.scheduled_start,
+                                                           self.actual_start,
+                                                           slug))
+        db.session.commit()
+        # check if sport update is needed
+
     @classmethod
     def find_by_params(cls, **kwargs):
         matched_models = []
