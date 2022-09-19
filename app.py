@@ -1,5 +1,5 @@
 from db import db
-from common.utils import populate_db
+from common.populate_db import populate_db
 
 from flask import Flask
 from flask_restful import Api

@@ -1,6 +1,7 @@
 from db import db
 from flask import jsonify
 from collections import namedtuple
+from common.utils import parse_clauses_for_query
 
 
 class SportModel(db.Model):
@@ -65,9 +66,9 @@ class SportModel(db.Model):
             else:
                 key = 's.' + key.lower()
             if key == 's.name' or key == 's.slug':
-                filter_str += key + ' REGEXP "' + val + '"'
+                filter_str += parse_clauses_for_query(key, 'REGEXP', val)
             else:
-                filter_str += key + '=' + val
+                filter_str += parse_clauses_for_query(key, '=', val)
             filter_str += ' and '
 
         filter_str = filter_str[:-5]
