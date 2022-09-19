@@ -120,6 +120,18 @@ class EventModel(db.Model):
             self.scheduled_start = kwargs['scheduled_start'][0]
         if 'actual_start' in kwargs:
             self.actual_start = kwargs['actual_start'][0]
+
+        scheduled_start = self.scheduled_start
+        actual_start = self.actual_start
+        if scheduled_start is None:
+            scheduled_start = 'NULL'
+        else:
+            scheduled_start = "'" + self.scheduled_start + "'"
+        if actual_start is None:
+            actual_start = 'NULL'
+        else:
+            actual_start = "'" + self.actual_start + "'"
+
         db.session.execute("""UPDATE events 
                               SET name = '{0}', 
                                   active = {1},
@@ -131,8 +143,8 @@ class EventModel(db.Model):
                                                            self.active,
                                                            self.type,
                                                            self.status,
-                                                           self.scheduled_start,
-                                                           self.actual_start,
+                                                           scheduled_start,
+                                                           actual_start,
                                                            slug))
         db.session.commit()
         SportModel.active_events_check(self.sport)

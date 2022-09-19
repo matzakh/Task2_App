@@ -106,7 +106,7 @@ class SportModel(db.Model):
         sport = SportModel.find_by_field(sport_id, field_name='id')
         sport_with_active_events = SportModel.find_by_params(**{'id': [sport.id], 'event_active': ['true']})
         if not sport.active and len(sport_with_active_events) > 0:
-            sport.update_in_db(sport.slug, **{'name': [sport.name], 'active': [True]})
+            sport.update_in_db(sport.slug, **{'name': [sport.name], 'active': [1]})
         elif sport.active and len(sport_with_active_events) == 0:
-            sport.update_in_db(sport.slug, **{'name': [sport.name], 'active': [False]})
+            sport.update_in_db(sport.slug, **{'name': [sport.name], 'active': [0]})
 
