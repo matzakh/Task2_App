@@ -50,6 +50,23 @@ class EventModel(db.Model):
     scheduled_start = db.Column(db.DATETIME, nullable=True)
     actual_start = db.Column(db.DATETIME, nullable=True)
 
+    def __init__(self, name, slug, active, type, sport, status, scheduled_start=None, actual_start=None):
+        self.name = name
+        self.slug = slug
+        self.active = active
+        if isinstance(type, str):
+            type = EventType.str_to_int(type)
+        self.type = type
+        if isinstance(sport, str):
+            # sport query here
+            sport = sport
+        self.sport = sport
+        if isinstance(status, str):
+            status = EventStatus.str_to_int(status)
+        self.status = status
+        self.scheduled_start = scheduled_start
+        self.actual_start = actual_start
+
     def __repr__(self):
         return "<Event %r>" % self.name
 
