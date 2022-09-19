@@ -88,3 +88,6 @@ class SportModel(db.Model):
         for r in records:
             return SportModel(name=r.name, slug=r.slug, active=r.active)._assign_id(r.id)
 
+    @classmethod
+    def active_events_check(cls, sport_id):
+        pass

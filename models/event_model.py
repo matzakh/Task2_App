@@ -98,6 +98,8 @@ class EventModel(db.Model):
                                                                                             self.scheduled_start,
                                                                                             self.actual_start))
         db.session.commit()
+        if self.active:
+            SportModel.active_events_check(self.sport)
 
     def update_in_db(self, slug, **kwargs):
         self.name = kwargs['name'][0]
@@ -127,7 +129,7 @@ class EventModel(db.Model):
                                                            self.actual_start,
                                                            slug))
         db.session.commit()
-        # check if sport update is needed
+        SportModel.active_events_check(self.sport)
 
     @classmethod
     def find_by_params(cls, **kwargs):
