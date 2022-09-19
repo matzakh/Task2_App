@@ -86,17 +86,8 @@ class SportModel(db.Model):
                                        WHERE """ + filter_str)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
-        print("""SELECT DISTINCT
-                                              s.id as id,
-                                              s.name as name,
-                                              s.slug as slug,
-                                              s.active as active
-                                       FROM sports s 
-                                       LEFT JOIN events e on s.id=e.sport 
-                                       WHERE """ + filter_str)
 
         for r in records:
-            print(r)
             matched_models.append(SportModel(name=r.name, slug=r.slug, active=r.active)._assign_id(r.id))
 
         return matched_models
