@@ -26,6 +26,17 @@ class Event(Resource):
             abort_if_not_exist(slug)
         return result.json()
 
+    def put(self, slug):
+        try:
+            schema.load(request.form)
+        except:
+            abort(400, message="Invalid fields")
+        model = EventModel.find_by_field(slug)
+        if model is None:
+            abort_if_not_exist(slug)
+
+        model.update_in_db(slug, **request.form)
+
 
 class EventList(Resource):
 

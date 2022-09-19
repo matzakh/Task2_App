@@ -133,14 +133,14 @@ class EventModel(db.Model):
 
     @classmethod
     def find_by_params(cls, **kwargs):
-        print(kwargs)
         matched_models = []
         filter_str = ''
 
         for key, value in kwargs.items():
-            val = value[0]
+            key = str(key)
+            val = str(value[0])
             if key == 'name' or key == 'slug':
-                filter_str += key + ' REGEXP "' + str(val) + '"'
+                filter_str += key + ' REGEXP "' + val + '"'
             elif val.lower() == 'true':
                 filter_str += key
             elif val.lower() == 'false':
