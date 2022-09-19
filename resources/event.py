@@ -25,3 +25,18 @@ class Event(Resource):
         if result is None:
             abort_if_not_exist(slug)
         return result.json()
+
+
+class EventList(Resource):
+
+    def get(self):
+        error = schema.validate(request.args)
+        if error:
+            abort(400, message=str(error))
+
+        result = EventModel.find_by_params(**request.args)
+
+        if len(result) < 1:
+            abort_if_not_exist(request.args)
+
+        return {'events': [i.json().json for i in result]}, 200
