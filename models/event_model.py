@@ -102,18 +102,24 @@ class EventModel(db.Model):
             SportModel.active_events_check(self.sport)
 
     def update_in_db(self, slug, **kwargs):
-        self.name = kwargs['name'][0]
-        self.active = kwargs['active'][0]
-        type = kwargs['type'][0]
-        if isinstance(kwargs['type'][0], str):
-            type = EventType.str_to_int(kwargs['type'][0])
-        self.type = type
-        status = kwargs['status'][0]
-        if isinstance(kwargs['status'][0], str):
-            status = EventStatus.str_to_int(kwargs['status'][0])
-        self.status = status
-        self.scheduled_start = kwargs['scheduled_start'][0]
-        self.actual_start = kwargs['actual_start'][0]
+        if 'name' in kwargs:
+            self.name = kwargs['name'][0]
+        if 'active' in kwargs:
+            self.active = kwargs['active'][0]
+        if 'type' in kwargs:
+            type = kwargs['type'][0]
+            if isinstance(kwargs['type'][0], str):
+                type = EventType.str_to_int(kwargs['type'][0])
+            self.type = type
+        if 'status' in kwargs:
+            status = kwargs['status'][0]
+            if isinstance(kwargs['status'][0], str):
+                status = EventStatus.str_to_int(kwargs['status'][0])
+            self.status = status
+        if 'scheduled_start' in kwargs:
+            self.scheduled_start = kwargs['scheduled_start'][0]
+        if 'actual_start' in kwargs:
+            self.actual_start = kwargs['actual_start'][0]
         db.session.execute("""UPDATE events 
                               SET name = '{0}', 
                                   active = {1},

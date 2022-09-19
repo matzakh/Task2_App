@@ -8,6 +8,7 @@ class SportSchema(Schema):
     name = fields.Str(required=False)
     slug = fields.Str(required=False)
     active = fields.Boolean(required=False)
+    event_active = fields.Boolean(required=False)
 
 
 schema = SportSchema()
@@ -37,7 +38,7 @@ class Sport(Resource):
 
     def put(self, slug):
         try:
-            schema.load(request.form)
+            schema.load(request.form, partial=('name', 'slug', 'active'))
         except:
             abort(400, message="Invalid fields")
         model = SportModel.find_by_field(slug)

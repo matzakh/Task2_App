@@ -28,7 +28,9 @@ class Event(Resource):
 
     def put(self, slug):
         try:
-            schema.load(request.form)
+            schema.load(request.form, partial=('name','slug','active',
+                                               'type','sport','status',
+                                               'scheduled_start','actual_start'))
         except:
             abort(400, message="Invalid fields")
         model = EventModel.find_by_field(slug)
