@@ -66,21 +66,24 @@ class SportModel(db.Model):
             else:
                 key = 's.' + key.lower()
             if key == 's.name' or key == 's.slug':
-                filter_str += parse_clauses_for_query(key, 'REGEXP', val)
+                filter_str += parse_clauses_for_query(key, 'REGEXP', val, is_string=True)
             else:
                 filter_str += parse_clauses_for_query(key, '=', val)
             filter_str += ' and '
 
         filter_str = filter_str[:-5]
 
-        result = db.session.execute("""SELECT DISTINCT
+        query = """SELECT DISTINCT
                                               s.id as id,
                                               s.name as name,
                                               s.slug as slug,
                                               s.active as active
                                        FROM sports s 
                                        LEFT JOIN events e on s.id=e.sport 
-                                       WHERE """ + filter_str)
+                                       WHERE """ + filter_str
+
+        print(query)
+        result = db.session.execute(query)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
 
