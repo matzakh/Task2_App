@@ -66,10 +66,6 @@ class SportModel(db.Model):
                 key = 's.' + key.lower()
             if key == 's.name' or key == 's.slug':
                 filter_str += key + ' REGEXP "' + val + '"'
-            elif val.lower() == 'true':
-                filter_str += key
-            elif val.lower() == 'false':
-                filter_str += 'not ' + key
             else:
                 filter_str += key + '=' + val
             filter_str += ' and '

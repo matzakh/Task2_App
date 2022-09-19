@@ -8,6 +8,10 @@ def abort_if_not_exist(item):
     abort(404, message="{} doesn't exist".format(str(item)))
 
 
+def parse_OR_clauses_for_query(key, value):
+
+
+
 def populate_db(sqldb):
     football = SportModel(name='football', slug='football', active=True)
     basketball = SportModel(name='basketball', slug='basketball', active=False)
