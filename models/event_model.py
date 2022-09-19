@@ -71,6 +71,45 @@ class EventModel(db.Model):
         })
 
     @classmethod
+    def find_by_params(cls, **kwargs):
+        matched_models = []
+        filter_str = ''
+
+        for key, value in kwargs.items():
+            val = value[0]
+            if key == 'name' or key == 'slug':
+                filter_str += str(key) + ' REGEXP "' + str(val) + '"'
+            elif val.lower() == 'true':
+                filter_str += str(key)
+            elif val.lower() == 'false':
+                filter_str += 'not ' + str(key)
+            elif key == 'type':
+                filter_str += str(key) + '=' + str(EventType.str_to_int(val))
+            elif key == 'status':
+                filter_str += str(key) + '=' + str(EventStatus.str_to_int(val))
+            else:
+                filter_str += str(key) + '=' + str(val)
+            filter_str += ' and '
+
+        filter_str = filter_str[:-5]
+
+        result = db.session.execute('SELECT * FROM events WHERE ' + filter_str)
+        Record = namedtuple('Record', result.keys())
+        records = [Record(*r) for r in result.fetchall()]
+
+        for r in records:
+            matched_models.append(EventModel(name=r.name,
+                                             slug=r.slug,
+                                             active=r.active,
+                                             type=r.type,
+                                             sport=r.sport,
+                                             status=r.status,
+                                             scheduled_start=r.scheduled_start,
+                                             actual_start=r.actual_start)._assign_id(r.id))
+
+        return matched_models
+
+    @classmethod
     def find_by_field(cls, field_value, field_name='slug'):
         if isinstance(field_value, str):
             field_value = '"' + field_value + '"'
