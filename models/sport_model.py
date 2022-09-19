@@ -65,13 +65,14 @@ class SportModel(db.Model):
             else:
                 key = 's.' + key.lower()
             if key == 's.name' or key == 's.slug':
-                filter_str += key + ' REGEXP "' + val + '" and '
+                filter_str += key + ' REGEXP "' + val + '"'
             elif val.lower() == 'true':
-                filter_str += key + ' and '
+                filter_str += key
             elif val.lower() == 'false':
-                filter_str += 'not ' + key + ' and '
+                filter_str += 'not ' + key
             else:
-                filter_str += key + '=' + key + ' and '
+                filter_str += key + '=' + val
+            filter_str += ' and '
 
         filter_str = filter_str[:-5]
 
@@ -85,8 +86,17 @@ class SportModel(db.Model):
                                        WHERE """ + filter_str)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
+        print("""SELECT DISTINCT
+                                              s.id as id,
+                                              s.name as name,
+                                              s.slug as slug,
+                                              s.active as active
+                                       FROM sports s 
+                                       LEFT JOIN events e on s.id=e.sport 
+                                       WHERE """ + filter_str)
 
         for r in records:
+            print(r)
             matched_models.append(SportModel(name=r.name, slug=r.slug, active=r.active)._assign_id(r.id))
 
         return matched_models

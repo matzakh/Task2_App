@@ -38,6 +38,7 @@ class Event(Resource):
             abort_if_not_exist(slug)
 
         model.update_in_db(slug, **request.form)
+        return model.json()
 
 
 class EventList(Resource):
