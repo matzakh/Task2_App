@@ -2,7 +2,7 @@ from db import db
 from flask import jsonify
 from collections import namedtuple
 from enum import IntEnum
-from models.sport_model import SportModel
+from .sport_model import SportModel
 
 
 class EventType(IntEnum):
@@ -133,23 +133,24 @@ class EventModel(db.Model):
 
     @classmethod
     def find_by_params(cls, **kwargs):
+        print(kwargs)
         matched_models = []
         filter_str = ''
 
         for key, value in kwargs.items():
             val = value[0]
             if key == 'name' or key == 'slug':
-                filter_str += str(key) + ' REGEXP "' + str(val) + '"'
+                filter_str += key + ' REGEXP "' + str(val) + '"'
             elif val.lower() == 'true':
-                filter_str += str(key)
+                filter_str += key
             elif val.lower() == 'false':
-                filter_str += 'not ' + str(key)
+                filter_str += 'not ' + key
             elif key == 'type':
-                filter_str += str(key) + '=' + str(EventType.str_to_int(val))
+                filter_str += key + '=' + str(EventType.str_to_int(val))
             elif key == 'status':
-                filter_str += str(key) + '=' + str(EventStatus.str_to_int(val))
+                filter_str += key + '=' + str(EventStatus.str_to_int(val))
             else:
-                filter_str += str(key) + '=' + str(val)
+                filter_str += key + '=' + str(val)
             filter_str += ' and '
 
         filter_str = filter_str[:-5]

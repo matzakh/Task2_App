@@ -57,19 +57,31 @@ class SportModel(db.Model):
         filter_str = ''
 
         for key, value in kwargs.items():
-            val = value[0]
-            if key == 'name' or key == 'slug':
-                filter_str += str(key) + ' REGEXP "' + str(val) + '" and '
-            elif val.lower() == 'true':
-                filter_str += str(key) + ' and '
-            elif val.lower() == 'false':
-                filter_str += 'not ' + str(key) + ' and '
+            key = str(key)
+            val = str(value[0])
+            if 'event' in key.lower():
+                key = 'e.' + key.lower().split('event_')[1]
             else:
-                filter_str += str(key) + '=' + str(val) + ' and '
+                key = 's.' + key.lower()
+            if key == 's.name' or key == 's.slug':
+                filter_str += key + ' REGEXP "' + str(val) + '" and '
+            elif val.lower() == 'true':
+                filter_str += key + ' and '
+            elif val.lower() == 'false':
+                filter_str += 'not ' + key + ' and '
+            else:
+                filter_str += key + '=' + key + ' and '
 
         filter_str = filter_str[:-5]
 
-        result = db.session.execute('SELECT * FROM sports WHERE ' + filter_str)
+        result = db.session.execute("""SELECT DISTINCT
+                                              s.id as id,
+                                              s.name as name,
+                                              s.slug as slug,
+                                              s.active as active
+                                       FROM sports s 
+                                       LEFT JOIN events e on s.id=e.sport 
+                                       WHERE """ + filter_str)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
 
@@ -90,4 +102,10 @@ class SportModel(db.Model):
 
     @classmethod
     def active_events_check(cls, sport_id):
-        pass
+        sport = SportModel.find_by_field(sport_id, field_name='id')
+        sport_with_active_events = SportModel.find_by_params(**{'id': [sport.id], 'event_active': ['true']})
+        if not sport.active and len(sport_with_active_events) > 0:
+            sport.update_in_db(sport.slug, **{'name': [sport.name], 'active': [True]})
+        elif sport.active and len(sport_with_active_events) == 0:
+            sport.update_in_db(sport.slug, **{'name': [sport.name], 'active': [False]})
+
