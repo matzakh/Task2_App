@@ -58,6 +58,7 @@ class SportModel(db.Model):
         matched_models = []
         sport_filter_arr = []
         event_filter_arr = []
+        having_arr = []
         having_str = ''
         sport_filter_str = ''
         event_filter_str = ''
@@ -71,7 +72,7 @@ class SportModel(db.Model):
             if 'event' in key:
                 key = 'e.' + key.split('event_')[1]
                 if 'count' in key:
-                    having_str += 'HAVING ' + parse_clauses_for_query('count(ev.id)', operator, val)
+                    having_arr.append(parse_clauses_for_query('count(ev.id)', operator, val))
                 else:
                     event_filter_arr.append(parse_clauses_for_query(key, operator, val))
             else:
@@ -85,6 +86,8 @@ class SportModel(db.Model):
             sport_filter_str = ' WHERE ' + ' AND '.join(sport_filter_arr) + ' '
         if len(event_filter_arr) > 0:
             event_filter_str = ' WHERE ' + ' AND '.join(event_filter_arr) + ' '
+        if len(having_arr) > 0:
+            having_str = 'HAVING ' + ' AND '.join(having_arr) + ' '
 
         query = """SELECT DISTINCT
                             s.id as id,
