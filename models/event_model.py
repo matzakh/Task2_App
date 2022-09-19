@@ -168,7 +168,7 @@ class EventModel(db.Model):
             elif key == 'status':
                 filter_str += key + '=' + str(EventStatus.str_to_int(val))
             else:
-                filter_str += key + '=' + str(val)
+                filter_str += key + '=' + val
             filter_str += ' and '
 
         filter_str = filter_str[:-5]
