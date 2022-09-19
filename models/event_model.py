@@ -2,6 +2,7 @@ from db import db
 from flask import jsonify
 from collections import namedtuple
 from enum import IntEnum
+from models.sport_model import SportModel
 
 
 class EventType(IntEnum):
@@ -58,8 +59,7 @@ class EventModel(db.Model):
             type = EventType.str_to_int(type)
         self.type = type
         if isinstance(sport, str):
-            # sport query here
-            sport = sport
+            sport = SportModel.find_by_field(sport, field_name='name').id
         self.sport = sport
         if isinstance(status, str):
             status = EventStatus.str_to_int(status)
