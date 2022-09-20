@@ -4,6 +4,7 @@ from collections import namedtuple
 from enum import IntEnum
 from .sport_model import SportModel
 from common.utils import if_none_replace_with_strnull
+from datetime import datetime as dt
 
 
 class EventType(IntEnum):
@@ -12,6 +13,10 @@ class EventType(IntEnum):
 
     @classmethod
     def str_to_int(cls, str_val):
+        if not isinstance(str_val, str):
+            return str_val
+        if str_val.isdigit():
+            return int(str_val)
         if str_val.lower() == 'prepay':
             return cls.PREPAY
         elif str_val.lower() == 'inplay':
@@ -28,6 +33,10 @@ class EventStatus(IntEnum):
 
     @classmethod
     def str_to_int(cls, str_val):
+        if not isinstance(str_val, str):
+            return str_val
+        if str_val.isdigit():
+            return int(str_val)
         if str_val.lower() == 'pending':
             return cls.PENDING
         elif str_val.lower() == 'started':
@@ -57,13 +66,22 @@ class EventModel(db.Model):
         self.slug = slug
         self.active = active
         if isinstance(type, str):
-            type = EventType.str_to_int(type)
+            if type.isalpha():
+                type = EventType.str_to_int(type)
+            else:
+                type = int(type)
         self.type = type
         if isinstance(sport, str):
-            sport = SportModel.find_by_field(sport, field_name='name').id
+            if sport.isalpha():
+                sport = SportModel.find_by_field(sport, field_name='name').id
+            else:
+                sport = int(sport)
         self.sport = sport
         if isinstance(status, str):
-            status = EventStatus.str_to_int(status)
+            if status.isalpha():
+                status = EventStatus.str_to_int(status)
+            else:
+                status = int(status)
         self.status = status
         self.scheduled_start = scheduled_start
         self.actual_start = actual_start
@@ -89,6 +107,12 @@ class EventModel(db.Model):
         })
 
     def save_to_db(self):
+        scheduled_start = if_none_replace_with_strnull(self.scheduled_start)
+        actual_start = if_none_replace_with_strnull(self.actual_start)
+        if scheduled_start != 'NULL':
+            scheduled_start = "'" + scheduled_start + "'"
+        if actual_start != 'NULL':
+            actual_start = "'" + actual_start + "'"
         db.session.execute("""INSERT INTO events (name, slug, active, type, sport, status, scheduled_start, actual_start) 
                               VALUES ('{0}', '{1}', {2}, {3}, 
                               {4}, {5}, {6}, {7})""".format(self.name,
@@ -97,8 +121,8 @@ class EventModel(db.Model):
                                                             self.type,
                                                             self.sport,
                                                             self.status,
-                                                            if_none_replace_with_strnull(self.scheduled_start),
-                                                            if_none_replace_with_strnull(self.actual_start)))
+                                                            scheduled_start,
+                                                            actual_start))
         db.session.commit()
         if self.active:
             SportModel.active_events_check(self.sport)
@@ -119,19 +143,15 @@ class EventModel(db.Model):
                 status = EventStatus.str_to_int(kwargs['status'][0])
             self.status = status
         if 'scheduled_start' in kwargs:
-            self.scheduled_start = kwargs['scheduled_start'][0]
+            self.scheduled_start = kwargs['scheduled_start'][0] #dt.strptime(kwargs['scheduled_start'][0], '%Y-%m-%d %H:%M:%S')
         if 'actual_start' in kwargs:
-            self.actual_start = kwargs['actual_start'][0]
+            self.actual_start = kwargs['actual_start'][0] #dt.strptime(kwargs['actual_start'][0], '%Y-%m-%d %H:%M:%S')
 
-        scheduled_start = self.scheduled_start
-        actual_start = self.actual_start
-        if scheduled_start is None:
-            scheduled_start = 'NULL'
-        else:
+        scheduled_start = if_none_replace_with_strnull(self.scheduled_start)
+        actual_start = if_none_replace_with_strnull(self.actual_start)
+        if scheduled_start != 'NULL':
             scheduled_start = "'" + self.scheduled_start + "'"
-        if actual_start is None:
-            actual_start = 'NULL'
-        else:
+        if actual_start != 'NULL':
             actual_start = "'" + self.actual_start + "'"
 
         db.session.execute("""UPDATE events 
@@ -159,6 +179,8 @@ class EventModel(db.Model):
         for key, value in kwargs.items():
             key = str(key)
             val = str(value[0])
+            if 'start' in key:
+                val = "'" + val + "'"
             if key == 'name' or key == 'slug':
                 filter_str += key + ' REGEXP "' + val + '"'
             elif val.lower() == 'true':

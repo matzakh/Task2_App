@@ -97,7 +97,8 @@ class SportModel(db.Model):
                             count(ev.id) as cnt
                    FROM sports s 
                    LEFT JOIN (
-                        SELECT e.id, e.sport, e.name, e.slug, e.active, e.scheduled_start, e.actual_start, e.status, e.type
+                        SELECT e.id, e.sport, e.name, e.slug, e.active, 
+                               e.scheduled_start, e.actual_start, e.status, e.type
                         FROM events e""" + event_filter_str + \
                    """) ev 
                    ON s.id=ev.sport""" + sport_filter_str + """ GROUP BY 1,2,3,4 """ + having_str
