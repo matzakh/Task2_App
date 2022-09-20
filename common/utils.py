@@ -27,3 +27,8 @@ def parse_key_val_with_operator(keystr):
     else:
         return None
 
+
+def if_none_replace_with_strnull(val):
+    if val is None:
+        return 'NULL'
+    return val

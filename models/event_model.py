@@ -3,6 +3,7 @@ from flask import jsonify
 from collections import namedtuple
 from enum import IntEnum
 from .sport_model import SportModel
+from common.utils import if_none_replace_with_strnull
 
 
 class EventType(IntEnum):
@@ -89,14 +90,15 @@ class EventModel(db.Model):
 
     def save_to_db(self):
         db.session.execute("""INSERT INTO events (name, slug, active, type, sport, status, scheduled_start, actual_start) 
-                              VALUES ('{0}', '{1}', {2}, {3}, {4}, {5}, {6}, {7})""".format(self.name,
-                                                                                            self.slug,
-                                                                                            self.active,
-                                                                                            self.type,
-                                                                                            self.sport,
-                                                                                            self.status,
-                                                                                            self.scheduled_start,
-                                                                                            self.actual_start))
+                              VALUES ('{0}', '{1}', {2}, {3}, 
+                              {4}, {5}, {6}, {7})""".format(self.name,
+                                                            self.slug,
+                                                            self.active,
+                                                            self.type,
+                                                            self.sport,
+                                                            self.status,
+                                                            if_none_replace_with_strnull(self.scheduled_start),
+                                                            if_none_replace_with_strnull(self.actual_start)))
         db.session.commit()
         if self.active:
             SportModel.active_events_check(self.sport)

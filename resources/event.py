@@ -26,6 +26,32 @@ class Event(Resource):
             abort_if_not_exist(slug)
         return result.json()
 
+    def post(self, slug):
+        try:
+            schema.load(request.form, partial=('scheduled_start', 'actual_start'))
+        except:
+            abort(400, message="Invalid fields")
+        if len(EventModel.find_by_params(**request.form)) > 0:
+            abort(400, message="This event already exists")
+
+        scheduled_start = None
+        actual_start = None
+        if 'scheduled_start' in request.form:
+            scheduled_start = request.form['scheduled_start']
+        if 'actual_start' in request.form:
+            actual_start = request.form['actual_start']
+
+        model = EventModel(name=request.form['name'],
+                           slug=request.form['slug'],
+                           active=request.form['active'],
+                           type=request.form['type'],
+                           sport=request.form['sport'],
+                           status=request.form['status'],
+                           scheduled_start=scheduled_start,
+                           actual_start=actual_start)
+        model.save_to_db()
+        return model.json()
+
     def put(self, slug):
         try:
             schema.load(request.form, partial=('name','slug','active',
