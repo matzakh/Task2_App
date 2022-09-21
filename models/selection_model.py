@@ -49,6 +49,22 @@ class SelectionModel(db.Model):
         self.active = active
         self.outcome = OutcomeType.str_to_int(outcome)
 
+    def __repr__(self):
+        return "<Selection %r>" % self.name
+
+    def _assign_id(self, id):
+        self.id = id
+        return self
+
+    def json(self):
+        return jsonify({
+            'id': self.id,
+            'name': self.name,
+            'event': self.event,
+            'active': self.active,
+            'outcome': self.outcome
+        })
+
     def save_to_db(self):
         pass
 
