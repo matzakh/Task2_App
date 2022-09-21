@@ -65,24 +65,14 @@ class EventModel(db.Model):
         self.name = name
         self.slug = slug
         self.active = active
-        if isinstance(type, str):
-            if type.isalpha():
-                type = EventType.str_to_int(type)
-            else:
-                type = int(type)
-        self.type = type
+        self.type = EventType.str_to_int(type)
         if isinstance(sport, str):
             if sport.isalpha():
                 sport = SportModel.find_by_field(sport, field_name='name').id
             else:
                 sport = int(sport)
         self.sport = sport
-        if isinstance(status, str):
-            if status.isalpha():
-                status = EventStatus.str_to_int(status)
-            else:
-                status = int(status)
-        self.status = status
+        self.status = EventStatus.str_to_int(status)
         self.scheduled_start = scheduled_start
         self.actual_start = actual_start
 
@@ -133,15 +123,9 @@ class EventModel(db.Model):
         if 'active' in kwargs:
             self.active = kwargs['active'][0]
         if 'type' in kwargs:
-            type = kwargs['type'][0]
-            if isinstance(kwargs['type'][0], str):
-                type = EventType.str_to_int(kwargs['type'][0])
-            self.type = type
+            self.type = EventType.str_to_int(kwargs['type'][0])
         if 'status' in kwargs:
-            status = kwargs['status'][0]
-            if isinstance(kwargs['status'][0], str):
-                status = EventStatus.str_to_int(kwargs['status'][0])
-            self.status = status
+            self.status = EventStatus.str_to_int(kwargs['status'][0])
         if 'scheduled_start' in kwargs:
             self.scheduled_start = kwargs['scheduled_start'][0] #dt.strptime(kwargs['scheduled_start'][0], '%Y-%m-%d %H:%M:%S')
         if 'actual_start' in kwargs:
