@@ -14,7 +14,7 @@ class SelectionSchema(Schema):
 schema = SelectionSchema()
 
 
-class Selection:
+class Selection(Resource):
 
     def get(self, id):
         result = SelectionModel.find_by_field(id)
