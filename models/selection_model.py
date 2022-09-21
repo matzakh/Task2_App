@@ -6,7 +6,7 @@ from .event_model import EventModel
 from common.utils import if_none_replace_with_strnull
 
 
-class OutcomeType(IntEnum):
+class SelectionOutcome(IntEnum):
     UNSETTLED = 1
     VOID = 2
     LOSE = 3
@@ -47,7 +47,7 @@ class SelectionModel(db.Model):
                 event = int(event)
         self.event = event
         self.active = active
-        self.outcome = OutcomeType.str_to_int(outcome)
+        self.outcome = SelectionOutcome.str_to_int(outcome)
 
     def __repr__(self):
         return "<Selection %r>" % self.name
@@ -68,7 +68,7 @@ class SelectionModel(db.Model):
     def save_to_db(self):
         pass
 
-    def update_in_db(self, name, **kwargs):
+    def update_in_db(self, id, **kwargs):
         pass
 
     @classmethod
@@ -76,5 +76,16 @@ class SelectionModel(db.Model):
         pass
 
     @classmethod
-    def find_by_field(cls, field_value, field_name='name'):
-        pass
+    def find_by_field(cls, field_value, field_name='id'):
+        if isinstance(field_value, str):
+            field_value = '"' + field_value + '"'
+        if field_name == 'outcome':
+            field_value = SelectionOutcome.str_to_int(field_value)
+        result = db.session.execute('SELECT * FROM selections WHERE {0} = {1} LIMIT 1'.format(field_name, field_value))
+        Record = namedtuple('Record', result.keys())
+        records = [Record(*r) for r in result.fetchall()]
+        for r in records:
+            return SelectionModel(name=r.name,
+                                  event=r.event,
+                                  active=r.active,
+                                  outcome=r.outcome)._assign_id(r.id)
