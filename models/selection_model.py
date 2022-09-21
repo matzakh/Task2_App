@@ -38,6 +38,17 @@ class SelectionModel(db.Model):
     active = db.Column(db.Boolean)
     outcome = db.Column(db.Integer)
 
+    def __init__(self, name, event, active, outcome):
+        self.name = name
+        if isinstance(event, str):
+            if event.isalpha():
+                event = EventModel.find_by_field(event, field_name='name').id
+            else:
+                event = int(event)
+        self.event = event
+        self.active = active
+        self.outcome = OutcomeType.str_to_int(outcome)
+
     def save_to_db(self):
         pass
 
