@@ -16,15 +16,15 @@ schema = SelectionSchema()
 
 class Selection:
 
-    def get(self, name):
-        result = SelectionModel.find_by_field(name)
+    def get(self, id):
+        result = SelectionModel.find_by_field(id)
         if result is None:
-            abort_if_not_exist(name)
+            abort_if_not_exist(id)
         return result.json()
 
     def post(self, name):
         try:
-            schema.load(request.form, partial=('outcome'))
+            schema.load(request.form)
         except:
             abort(400, message="Invalid fields")
         if len(SelectionModel.find_by_params(**request.form)) > 0:
@@ -37,14 +37,14 @@ class Selection:
         model.save_to_db()
         return model.json()
 
-    def put(self, name):
+    def put(self, id):
         try:
-            schema.load(request.form, partial=('outcome'))
+            schema.load(request.form)
         except:
             abort(400, message="Invalid fields")
-        model = SelectionModel.find_by_field(name)
+        model = SelectionModel.find_by_field(id)
         if model is None:
-            abort_if_not_exist(name)
+            abort_if_not_exist(id)
 
-        model.update_in_db(name, **request.form)
+        model.update_in_db(id, **request.form)
         return model.json()
