@@ -6,6 +6,30 @@ from .event_model import EventModel
 from common.utils import if_none_replace_with_strnull
 
 
+class OutcomeType(IntEnum):
+    UNSETTLED = 1
+    VOID = 2
+    LOSE = 3
+    WIN = 4
+
+    @classmethod
+    def str_to_int(cls, str_val):
+        if not isinstance(str_val, str):
+            return str_val
+        if str_val.isdigit():
+            return int(str_val)
+        if str_val.lower() == 'unsettled':
+            return cls.UNSETTLED
+        elif str_val.lower() == 'void':
+            return cls.VOID
+        elif str_val.lower() == 'lose':
+            return cls.LOSE
+        elif str_val.lower() == 'win':
+            return cls.WIN
+        else:
+            return None
+
+
 class SelectionModel(db.Model):
     __tablename__ = 'selections'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
