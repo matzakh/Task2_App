@@ -48,3 +48,14 @@ class Selection(Resource):
 
         model.update_in_db(id, **request.form)
         return model.json()
+
+
+class SelectionList(Resource):
+
+    def get(self):
+        result = SelectionModel.find_by_params(**request.args)
+
+        if len(result) < 1:
+            abort_if_not_exist(request.args)
+
+        return {'events': [i.json().json for i in result]}, 200

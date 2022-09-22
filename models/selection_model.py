@@ -95,3 +95,4 @@ class SelectionModel(db.Model):
                                   event=r.event,
                                   active=r.active,
                                   outcome=r.outcome)._assign_id(r.id)
+
