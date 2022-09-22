@@ -71,9 +71,9 @@ class Event(Resource):
 class EventList(Resource):
 
     def get(self):
-        error = schema.validate(request.args)
-        if error:
-            abort(400, message=str(error))
+        #error = schema.validate(request.args)
+        #if error:
+        #    abort(400, message=str(error))
 
         result = EventModel.find_by_params(**request.args)
 

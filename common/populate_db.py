@@ -1,5 +1,6 @@
 from models.sport_model import SportModel
 from models.event_model import EventModel, EventType, EventStatus
+from models.selection_model import SelectionModel, SelectionOutcome
 from datetime import datetime as dt
 
 
@@ -52,4 +53,18 @@ def populate_db(sqldb):
     sqldb.session.add(basketball_event1)
     sqldb.session.commit()
     sqldb.session.add(basketball_event2)
+    sqldb.session.commit()
+
+    event1_selection1 = SelectionModel(name='Event 1 Selection 1', event=1, active=0, outcome=3)
+    event1_selection2 = SelectionModel(name='Event 1 Selection 2', event=1, active=1, outcome=1)
+    event2_selection2 = SelectionModel(name='Event 2 Selection 1', event=2, active=1, outcome=1)
+    event3_selection1 = SelectionModel(name='Event 3 Selection 1', event=3, active=0, outcome=1)
+
+    sqldb.session.add(event1_selection1)
+    sqldb.session.commit()
+    sqldb.session.add(event1_selection2)
+    sqldb.session.commit()
+    sqldb.session.add(event2_selection2)
+    sqldb.session.commit()
+    sqldb.session.add(event3_selection1)
     sqldb.session.commit()

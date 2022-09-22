@@ -66,7 +66,13 @@ class SelectionModel(db.Model):
         })
 
     def save_to_db(self):
-        pass
+        db.session.execute("""INSERT INTO selections (name, event, active, outcome) 
+                              VALUES ('{0}', {1}, {2}, {3})""".format(self.name,
+                                                                      self.event,
+                                                                      self.active,
+                                                                      self.outcome))
+        db.session.commit()
+        # check for active for events
 
     def update_in_db(self, id, **kwargs):
         pass
@@ -77,10 +83,10 @@ class SelectionModel(db.Model):
 
     @classmethod
     def find_by_field(cls, field_value, field_name='id'):
-        if isinstance(field_value, str):
-            field_value = '"' + field_value + '"'
         if field_name == 'outcome':
             field_value = SelectionOutcome.str_to_int(field_value)
+        if isinstance(field_value, str):
+            field_value = '"' + field_value + '"'
         result = db.session.execute('SELECT * FROM selections WHERE {0} = {1} LIMIT 1'.format(field_name, field_value))
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]

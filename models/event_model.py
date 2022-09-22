@@ -3,7 +3,7 @@ from flask import jsonify
 from collections import namedtuple
 from enum import IntEnum
 from .sport_model import SportModel
-from common.utils import if_none_replace_with_strnull
+from common.utils import if_none_replace_with_strnull, parse_clauses_for_query, parse_key_val_with_operator
 from datetime import datetime as dt
 
 
@@ -158,30 +158,65 @@ class EventModel(db.Model):
     @classmethod
     def find_by_params(cls, **kwargs):
         matched_models = []
-        filter_str = ''
+        event_filter_arr = []
+        selection_filter_arr = []
+        having_arr = []
+        having_str = ''
+        event_filter_str = ''
+        selection_filter_str = ''
 
         for key, value in kwargs.items():
-            key = str(key)
+            key = str(key).lower()
             val = str(value[0])
-            if 'start' in key:
-                val = "'" + val + "'"
-            if key == 'name' or key == 'slug':
-                filter_str += key + ' REGEXP "' + val + '"'
-            elif val.lower() == 'true':
-                filter_str += key
-            elif val.lower() == 'false':
-                filter_str += 'not ' + key
-            elif key == 'type':
-                filter_str += key + '=' + str(EventType.str_to_int(val))
-            elif key == 'status':
-                filter_str += key + '=' + str(EventStatus.str_to_int(val))
+            operator = '='
+            if val == '':
+                key, operator, val = parse_key_val_with_operator(key)
+            if 'selection' in key:
+                key = 's.' + key.split('selection_')[1]
+                if 'count' in key:
+                    having_arr.append(parse_clauses_for_query('count(se.id)', operator, val))
+                else:
+                    selection_filter_arr.append(parse_clauses_for_query(key, operator, val))
             else:
-                filter_str += key + '=' + val
-            filter_str += ' and '
+                key = 'e.' + key
+                if key == 'e.name' or key == 'e.slug':
+                    event_filter_arr.append(parse_clauses_for_query(key, 'REGEXP', val, is_string=True))
+                elif 'start' in key:
+                    event_filter_arr.append(parse_clauses_for_query(key, operator, val, is_string=True))
+                elif key == 'type':
+                    event_filter_arr.append(parse_clauses_for_query(key, operator, str(EventType.str_to_int(val))))
+                elif key == 'status':
+                    event_filter_arr.append(parse_clauses_for_query(key, operator, str(EventStatus.str_to_int(val))))
+                else:
+                    event_filter_arr.append(parse_clauses_for_query(key, operator, val))
 
-        filter_str = filter_str[:-5]
+        if len(event_filter_arr) > 0:
+            event_filter_str = ' WHERE ' + ' AND '.join(event_filter_arr) + ' '
+        if len(selection_filter_arr) > 0:
+            selection_filter_str = ' WHERE ' + ' AND '.join(selection_filter_arr) + ' '
+        if len(having_arr) > 0:
+            having_str = 'HAVING ' + ' AND '.join(having_arr) + ' '
 
-        result = db.session.execute('SELECT * FROM events WHERE ' + filter_str)
+        query = """SELECT DISTINCT
+                                    e.id as id,
+                                    e.name as name,
+                                    e.slug as slug,
+                                    e.active as active,
+                                    e.type as type,
+                                    e.sport as sport,
+                                    e.status as status,
+                                    e.scheduled_start as scheduled_start,
+                                    e.actual_start as actual_start,
+                                    count(se.id) as cnt
+                           FROM events e
+                           LEFT JOIN (
+                                SELECT s.id, s.name, s.event, s.active, s.outcome
+                                FROM selections s""" + selection_filter_str + \
+                """) se
+                ON e.id=se.event""" + event_filter_str + """ GROUP BY 1,2,3,4,5,6,7,8,9 """ + having_str
+
+        print(query)
+        result = db.session.execute(query)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]
 
