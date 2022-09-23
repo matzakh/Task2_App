@@ -6,12 +6,16 @@ def abort_if_not_exist(item):
 
 
 def parse_clauses_for_query(key, operator, value, is_string=False):
+    if not isinstance(value, str):
+        return '(' + key + ' ' + operator + ' ' + str(value) + ')'
     if '|' in value:
         variants = value.split('|')
         if is_string:
             return '(' + ' OR '.join([key + ' ' + operator + ' "' + v + '"' for v in variants]) + ')'
         return '(' + ' OR '.join([key + ' ' + operator + ' ' + v for v in variants]) + ')'
     else:
+        if is_string:
+            return '(' + key + ' ' + operator + ' "' + value + '")'
         return '(' + key + ' ' + operator + ' ' + value + ')'
 
 
