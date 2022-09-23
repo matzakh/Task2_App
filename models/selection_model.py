@@ -72,7 +72,7 @@ class SelectionModel(db.Model):
                                                                       self.active,
                                                                       self.outcome))
         db.session.commit()
-        # check for active for events
+        EventModel.active_selections_check(self.event)
 
     def update_in_db(self, id, **kwargs):
         pass
