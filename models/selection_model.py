@@ -75,7 +75,21 @@ class SelectionModel(db.Model):
         EventModel.active_selections_check(self.event)
 
     def update_in_db(self, id, **kwargs):
-        pass
+        if 'name' in kwargs:
+            self.name = kwargs['name'][0]
+        if 'event' in kwargs:
+            self.event = kwargs['event'][0]
+        if 'active' in kwargs:
+            self.active = kwargs['active'][0]
+        if 'outcome' in kwargs:
+            self.outcome = kwargs['outcome'][0]
+        db.session.execute("""UPDATE selections SET name = '{0}', 
+                                                    event = {1},
+                                                    active = {2},
+                                                    outcome = {3}
+                              WHERE id = {4}""".format(self.name, self.event, self.active, self.outcome, id))
+        db.session.commit()
+        EventModel.active_selections_check(self.event)
 
     @classmethod
     def find_by_params(cls, **kwargs):
