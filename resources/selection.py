@@ -22,7 +22,7 @@ class Selection(Resource):
             abort_if_not_exist(id)
         return result.json()
 
-    def post(self, name):
+    def post(self, id):
         try:
             schema.load(request.form)
         except:
@@ -30,7 +30,7 @@ class Selection(Resource):
         if len(SelectionModel.find_by_params(**request.form)) > 0:
             abort(400, message="This event already exists")
 
-        model = SelectionModel(name=name,
+        model = SelectionModel(name=request.form['name'],
                                event=request.form['event'],
                                active=request.form['active'],
                                outcome=request.form['outcome'])
