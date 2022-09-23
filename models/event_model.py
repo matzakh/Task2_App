@@ -252,3 +252,12 @@ class EventModel(db.Model):
                               status=r.status,
                               scheduled_start=r.scheduled_start,
                               actual_start=r.actual_start)._assign_id(r.id)
+
+    @classmethod
+    def active_events_check(cls, event_id):
+        event = EventModel.find_by_field(event_id, field_name='id')
+        event_with_active_selections = EventModel.find_by_params(**{'id': [event_id], 'selection_active': [1]})
+        if not event.active and len(event_with_active_selections) > 0:
+            event.update_in_db(event.slug, **{'active': [1]})
+        elif event.active and len(event_with_active_selections) == 0:
+            event.update_in_db(event.slug, **{'active': [0]})

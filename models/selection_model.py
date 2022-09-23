@@ -3,7 +3,7 @@ from flask import jsonify
 from collections import namedtuple
 from enum import IntEnum
 from .event_model import EventModel
-from common.utils import if_none_replace_with_strnull
+from common.utils import if_none_replace_with_strnull, parse_clauses_for_query, parse_key_val_with_operator
 
 
 class SelectionOutcome(IntEnum):
@@ -79,7 +79,46 @@ class SelectionModel(db.Model):
 
     @classmethod
     def find_by_params(cls, **kwargs):
-        pass
+        matched_models = []
+        selection_filter_arr = []
+        selection_filter_str = ''
+
+        for key, value in kwargs.items():
+            key = str(key).lower()
+            val = str(value[0])
+            operator = '='
+            if val == '':
+                key, operator, val = parse_key_val_with_operator(key)
+            else:
+                key = 's.' + key
+                if key == 's.name':
+                    selection_filter_arr.append(parse_clauses_for_query(key, 'REGEXP', val, is_string=True))
+                elif 'outcome' in key:
+                    selection_filter_arr.append(parse_clauses_for_query(key, operator, SelectionOutcome.str_to_int(val)))
+                else:
+                    selection_filter_arr.append(parse_clauses_for_query(key, operator, val))
+
+        if len(selection_filter_arr) > 0:
+            selection_filter_str = ' WHERE ' + ' AND '.join(selection_filter_arr) + ' '
+
+        query = """SELECT DISTINCT
+                                    s.id as id,
+                                    s.name as name,
+                                    s.event as event,
+                                    s.active as active,
+                                    s.outcome as outcome
+                           FROM selections s""" + selection_filter_str
+
+        print(query)
+        result = db.session.execute(query)
+        Record = namedtuple('Record', result.keys())
+        records = [Record(*r) for r in result.fetchall()]
+
+        for r in records:
+            matched_models.append(SelectionModel(name=r.name, event=r.event,
+                                                 active=r.active, outcome=r.outcome)._assign_id(r.id))
+
+        return matched_models
 
     @classmethod
     def find_by_field(cls, field_value, field_name='id'):
