@@ -254,7 +254,7 @@ class EventModel(db.Model):
                               actual_start=r.actual_start)._assign_id(r.id)
 
     @classmethod
-    def active_events_check(cls, event_id):
+    def active_selections_check(cls, event_id):
         event = EventModel.find_by_field(event_id, field_name='id')
         event_with_active_selections = EventModel.find_by_params(**{'id': [event_id], 'selection_active': [1]})
         if not event.active and len(event_with_active_selections) > 0:
