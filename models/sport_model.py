@@ -126,7 +126,8 @@ class SportModel(db.Model):
     @classmethod
     def active_events_check(cls, sport_id):
         sport = SportModel.find_by_field(sport_id, field_name='id')
-        sport_with_active_events = SportModel.find_by_params(**{'id': [sport.id], 'event_active': [1]})
+        sport_with_active_events = SportModel.find_by_params(**{'id': [sport.id], 'event_active': [1],
+                                                                'event_count>1': ['']})
         if not sport.active and len(sport_with_active_events) > 0:
             sport.update_in_db(sport.slug, **{'name': [sport.name], 'active': [1]})
         elif sport.active and len(sport_with_active_events) == 0:
