@@ -1,5 +1,5 @@
 from db import db
-from common.populate_db import populate_db
+import os
 
 from flask import Flask
 from flask_restful import Api
@@ -11,20 +11,17 @@ from resources.selection import Selection, SelectionList
 def init_app():
     app = Flask(__name__)
     api = Api(app)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test1.db'
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'test_db.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     with app.app_context():
 
         db.init_app(app)
-        #db.drop_all()
-        #db.create_all()
-        #populate_db(db)
-        print(db.engine.table_names())
 
         @app.route('/')
         def home():
-            return 'Success'
+            return 'App started successfully', 200
 
         api.add_resource(Sport, '/sport/<string:slug>')
         api.add_resource(SportList, '/sport/search')
@@ -40,4 +37,3 @@ app = init_app()
 
 if __name__ == '__main__':
     app.run()
-    db.drop_all()
