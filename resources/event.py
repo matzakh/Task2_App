@@ -1,16 +1,17 @@
 from flask_restful import request, Resource, abort
 from models.event_model import EventModel
+from models.sport_model import SportModel
 from common.utils import abort_if_not_exist
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 
 class EventSchema(Schema):
     name = fields.Str(required=False)
     slug = fields.Str(required=False)
     active = fields.Boolean(required=False)
-    type = fields.Integer(required=False)
+    type = fields.Integer(required=False, validate=validate.OneOf([1, 2]))
     sport = fields.Integer(required=False)
-    status = fields.Integer(required=False)
+    status = fields.Integer(required=False, validate=validate.OneOf([1, 2, 3, 4]))
     scheduled_start = fields.DateTime(required=False)
     actual_start = fields.DateTime(required=False)
 
@@ -27,13 +28,16 @@ class Event(Resource):
         return result.json()
 
     def post(self, slug):
-        print(request.form)
         try:
             schema.load(request.form, partial=('scheduled_start', 'actual_start'))
         except:
             abort(400, message="Invalid fields")
         if len(EventModel.find_by_params(**request.form)) > 0:
             abort(400, message="This event already exists")
+
+        sport = SportModel.find_by_field(request.form['sport'], field_name='id')
+        if sport is None:
+            abort_if_not_exist('Sport ID ' + str(request.form['sport']))
 
         scheduled_start = None
         actual_start = None
@@ -63,6 +67,10 @@ class Event(Resource):
         model = EventModel.find_by_field(slug)
         if model is None:
             abort_if_not_exist(slug)
+        if 'sport' in request.form:
+            sport = SportModel.find_by_field(request.form['sport'], field_name='id')
+            if sport is None:
+                abort_if_not_exist('Sport ID ' + str(request.form['sport']))
 
         model.update_in_db(slug, **request.form)
         return model.json()
