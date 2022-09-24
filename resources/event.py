@@ -11,8 +11,8 @@ class EventSchema(Schema):
     type = fields.Integer(required=False)
     sport = fields.Integer(required=False)
     status = fields.Integer(required=False)
-    scheduled_start = fields.Integer(required=False)
-    actual_start = fields.Integer(required=False)
+    scheduled_start = fields.DateTime(required=False)
+    actual_start = fields.DateTime(required=False)
 
 
 schema = EventSchema()
@@ -27,20 +27,20 @@ class Event(Resource):
         return result.json()
 
     def post(self, slug):
-        #print(request.form)
-        #try:
-        #    schema.load(request.form, partial=('scheduled_start', 'actual_start'))
-        #except:
-        #    abort(400, message="Invalid fields")
+        print(request.form)
+        try:
+            schema.load(request.form, partial=('scheduled_start', 'actual_start'))
+        except:
+            abort(400, message="Invalid fields")
         if len(EventModel.find_by_params(**request.form)) > 0:
             abort(400, message="This event already exists")
 
         scheduled_start = None
         actual_start = None
         if 'scheduled_start' in request.form:
-            scheduled_start = request.form['scheduled_start'] #.strptime('%Y-%m-%d %H:%M:%S')
+            scheduled_start = request.form['scheduled_start']
         if 'actual_start' in request.form:
-            actual_start = request.form['actual_start'] #.strptime('%Y-%m-%d %H:%M:%S')
+            actual_start = request.form['actual_start']
 
         model = EventModel(name=request.form['name'],
                            slug=slug,
@@ -54,12 +54,12 @@ class Event(Resource):
         return model.json()
 
     def put(self, slug):
-        #try:
-        #    schema.load(request.form, partial=('name','slug','active',
-        #                                       'type','sport','status',
-        #                                       'scheduled_start','actual_start'))
-        #except:
-        #    abort(400, message="Invalid fields")
+        try:
+            schema.load(request.form, partial=('name','slug','active',
+                                               'type','sport','status',
+                                               'scheduled_start','actual_start'))
+        except:
+            abort(400, message="Invalid fields")
         model = EventModel.find_by_field(slug)
         if model is None:
             abort_if_not_exist(slug)
@@ -71,9 +71,6 @@ class Event(Resource):
 class EventList(Resource):
 
     def get(self):
-        #error = schema.validate(request.args)
-        #if error:
-        #    abort(400, message=str(error))
 
         result = EventModel.find_by_params(**request.args)
 
