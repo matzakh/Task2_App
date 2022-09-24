@@ -53,6 +53,11 @@ class TestApi(unittest.TestCase):
                                                                              'status': [12]})
             self.assertEqual(response.status_code, 400)
 
+    def test_invalid_foreign_key(self):
+        with self.app.app_context():
+            response = self.client.put(APP_URL + '/selection/1', data={'event': [999999]})
+            self.assertEqual(response.status_code, 404)
+
     def test_update_active(self):
         with self.app.app_context():
             response = self.client.put(APP_URL + '/selection/4', data={'active': [1]})
