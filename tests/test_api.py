@@ -34,6 +34,25 @@ class TestApi(unittest.TestCase):
             response = self.client.get(APP_URL + '/selection/madeup')
             self.assertEqual(response.status_code, 404)
 
+    def test_invalid_event_date_field(self):
+        with self.app.app_context():
+            response = self.client.post(APP_URL + '/event/test_event', data={'name': ['test'],
+                                                                             'active': [0],
+                                                                             'type': [1],
+                                                                             'sport': [1],
+                                                                             'status': [1],
+                                                                             'scheduled_start': ['2022']})
+            self.assertEqual(response.status_code, 400)
+
+    def test_invalid_enum_value(self):
+        with self.app.app_context():
+            response = self.client.post(APP_URL + '/event/test_event', data={'name': ['test'],
+                                                                             'active': [0],
+                                                                             'type': [1],
+                                                                             'sport': [1],
+                                                                             'status': [12]})
+            self.assertEqual(response.status_code, 400)
+
     def test_update_active(self):
         with self.app.app_context():
             response = self.client.put(APP_URL + '/selection/4', data={'active': [1]})
