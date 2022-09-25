@@ -1,7 +1,7 @@
 from db import db
 from flask import jsonify
 from collections import namedtuple
-from common.utils import parse_clauses_for_query, parse_key_val_with_operator
+from common.utils import parse_clauses_for_query, parse_key_val_with_operator, strdate_timezone_to_utc_convert
 
 
 class SportModel(db.Model):
@@ -62,19 +62,37 @@ class SportModel(db.Model):
         having_str = ''
         sport_filter_str = ''
         event_filter_str = ''
+        timezone = None
+
+        if 'timezone' in kwargs:
+            timezone = kwargs['timezone'][0]
 
         for key, value in kwargs.items():
             key = str(key).lower()
             val = str(value[0])
             operator = '='
+
+            if key == 'timezone':
+                continue
+
             if val == '':
                 key, operator, val = parse_key_val_with_operator(key)
+            if '<' in key or '>' in key:
+                key, operator, val = parse_key_val_with_operator(key + operator + val)
+
             if 'event' in key:
                 key = 'e.' + key.split('event_')[1]
                 if 'count' in key:
                     having_arr.append(parse_clauses_for_query('count(ev.id)', operator, val))
                 else:
-                    event_filter_arr.append(parse_clauses_for_query(key, operator, val))
+                    if key == 'e.name' or key == 'e.slug':
+                        event_filter_arr.append(parse_clauses_for_query(key, 'REGEXP', val, is_string=True))
+                    elif 'start' in key:
+                        if timezone is not None:
+                            val = strdate_timezone_to_utc_convert(val, timezone)
+                        event_filter_arr.append(parse_clauses_for_query(key, operator, val, is_string=True))
+                    else:
+                        event_filter_arr.append(parse_clauses_for_query(key, operator, val))
             else:
                 key = 's.' + key
                 if key == 's.name' or key == 's.slug':

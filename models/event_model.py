@@ -3,8 +3,8 @@ from flask import jsonify
 from collections import namedtuple
 from enum import IntEnum
 from .sport_model import SportModel
-from common.utils import if_none_replace_with_strnull, parse_clauses_for_query, parse_key_val_with_operator
-from datetime import datetime as dt
+from common.utils import if_none_replace_with_strnull, parse_clauses_for_query, \
+    parse_key_val_with_operator, strdate_timezone_to_utc_convert
 
 
 class EventType(IntEnum):
@@ -164,13 +164,21 @@ class EventModel(db.Model):
         having_str = ''
         event_filter_str = ''
         selection_filter_str = ''
+        timezone = None
+
+        if 'timezone' in kwargs:
+            timezone = kwargs['timezone'][0]
 
         for key, value in kwargs.items():
             key = str(key).lower()
             val = str(value[0])
             operator = '='
+            if key == 'timezone':
+                continue
             if val == '':
                 key, operator, val = parse_key_val_with_operator(key)
+            if '<' in key or '>' in key:
+                key, operator, val = parse_key_val_with_operator(key + operator + val)
             if 'selection' in key:
                 key = 's.' + key.split('selection_')[1]
                 if 'count' in key:
@@ -182,6 +190,8 @@ class EventModel(db.Model):
                 if key == 'e.name' or key == 'e.slug':
                     event_filter_arr.append(parse_clauses_for_query(key, 'REGEXP', val, is_string=True))
                 elif 'start' in key:
+                    if timezone is not None:
+                        val = strdate_timezone_to_utc_convert(val, timezone)
                     event_filter_arr.append(parse_clauses_for_query(key, operator, val, is_string=True))
                 elif key == 'type':
                     event_filter_arr.append(parse_clauses_for_query(key, operator, str(EventType.str_to_int(val))))

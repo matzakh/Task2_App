@@ -103,6 +103,9 @@ class SelectionModel(db.Model):
             operator = '='
             if val == '':
                 key, operator, val = parse_key_val_with_operator(key)
+            if '<' in key or '>' in key:
+                key, operator, val = parse_key_val_with_operator(key + operator + val)
+
             else:
                 key = 's.' + key
                 if key == 's.name':
