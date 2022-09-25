@@ -127,9 +127,9 @@ class EventModel(db.Model):
         if 'status' in kwargs:
             self.status = EventStatus.str_to_int(kwargs['status'][0])
         if 'scheduled_start' in kwargs:
-            self.scheduled_start = kwargs['scheduled_start'][0] #dt.strptime(kwargs['scheduled_start'][0], '%Y-%m-%d %H:%M:%S')
+            self.scheduled_start = kwargs['scheduled_start'][0]
         if 'actual_start' in kwargs:
-            self.actual_start = kwargs['actual_start'][0] #dt.strptime(kwargs['actual_start'][0], '%Y-%m-%d %H:%M:%S')
+            self.actual_start = kwargs['actual_start'][0]
 
         scheduled_start = if_none_replace_with_strnull(self.scheduled_start)
         actual_start = if_none_replace_with_strnull(self.actual_start)
@@ -215,7 +215,6 @@ class EventModel(db.Model):
                 """) se
                 ON e.id=se.event""" + event_filter_str + """ GROUP BY 1,2,3,4,5,6,7,8,9 """ + having_str
 
-        print(query)
         result = db.session.execute(query)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]

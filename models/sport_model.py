@@ -103,7 +103,6 @@ class SportModel(db.Model):
                    """) ev 
                    ON s.id=ev.sport""" + sport_filter_str + """ GROUP BY 1,2,3,4 """ + having_str
 
-        print(query)
         result = db.session.execute(query)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]

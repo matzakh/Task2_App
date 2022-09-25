@@ -56,9 +56,6 @@ class Sport(Resource):
 class SportList(Resource):
 
     def get(self):
-        #error = schema.validate(request.args)
-        #if error:
-            #abort(400, message=str(error))
 
         result = SportModel.find_by_params(**request.args)
 

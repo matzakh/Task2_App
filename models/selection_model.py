@@ -123,7 +123,6 @@ class SelectionModel(db.Model):
                                     s.outcome as outcome
                            FROM selections s""" + selection_filter_str
 
-        print(query)
         result = db.session.execute(query)
         Record = namedtuple('Record', result.keys())
         records = [Record(*r) for r in result.fetchall()]

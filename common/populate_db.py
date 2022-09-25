@@ -9,10 +9,8 @@ def populate_db(sqldb):
     basketball = SportModel(name='basketball', slug='basketball', active=False)
     sqldb.session.add(football)
     sqldb.session.commit()
-    print('football id' + str(football.id))
     sqldb.session.add(basketball)
     sqldb.session.commit()
-    print('basketball id' + str(basketball.id))
 
     football_event1 = EventModel(name='Jupiter vs Saturn',
                                  slug='jupiter_v_saturn',
