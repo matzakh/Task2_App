@@ -44,7 +44,27 @@ class TestApi(unittest.TestCase):
                                                                              'scheduled_start': ['2022']})
             self.assertEqual(response.status_code, 400)
 
-    def test_invalid_enum_value(self):
+    def test_invalid_enum_value_event_type(self):
+        with self.app.app_context():
+            response = self.client.post(APP_URL + '/event/test_event', data={'name': ['test'],
+                                                                             'active': [0],
+                                                                             'type': [1000],
+                                                                             'sport': [1],
+                                                                             'status': [1],
+                                                                             'scheduled_start': ['2022']})
+            self.assertEqual(response.status_code, 400)
+
+    def test_invalid_enum_value_event_status(self):
+        with self.app.app_context():
+            response = self.client.post(APP_URL + '/event/test_event', data={'name': ['test'],
+                                                                             'active': [0],
+                                                                             'type': [1],
+                                                                             'sport': [1],
+                                                                             'status': [1000],
+                                                                             'scheduled_start': ['2022']})
+            self.assertEqual(response.status_code, 400)
+
+    def test_invalid_enum_value_selection(self):
         with self.app.app_context():
             response = self.client.post(APP_URL + '/event/test_event', data={'name': ['test'],
                                                                              'active': [0],
@@ -53,9 +73,19 @@ class TestApi(unittest.TestCase):
                                                                              'status': [12]})
             self.assertEqual(response.status_code, 400)
 
-    def test_invalid_foreign_key(self):
+    def test_invalid_foreign_key_event(self):
         with self.app.app_context():
             response = self.client.put(APP_URL + '/selection/1', data={'event': [999999]})
+            self.assertEqual(response.status_code, 404)
+
+    def test_invalid_enum_outcome_selection(self):
+        with self.app.app_context():
+            response = self.client.put(APP_URL + '/selection/1', data={'outcome': [999999]})
+            self.assertEqual(response.status_code, 400)
+
+    def test_invalid_foreign_key_sport(self):
+        with self.app.app_context():
+            response = self.client.put(APP_URL + '/event/jupiter_v_saturn', data={'sport': [999999]})
             self.assertEqual(response.status_code, 404)
 
     def test_update_active(self):
